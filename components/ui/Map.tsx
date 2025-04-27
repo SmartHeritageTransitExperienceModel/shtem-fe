@@ -4,7 +4,6 @@ import {
   Text,
   View,
   ActivityIndicator,
-  Platform,
   TouchableOpacity,
   Modal,
 } from "react-native";
@@ -13,6 +12,7 @@ import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import axios from "axios";
 import { useLocationStore } from "../../store/useLocationStore";
+import AudioPlayer from "../AudioPlayer";
 
 interface Place {
   id: number;
@@ -30,6 +30,7 @@ export default function Map() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const { selectedLocation } = useLocationStore();
+  const [audio, setAudio] = useState<string | null>(null);
   const mapRef = useRef<MapView>(null);
 
   console.log(selectedLocation);
@@ -38,10 +39,8 @@ export default function Map() {
     const fetchPlaces = async () => {
       try {
         const response = await axios.get(
-          "http://192.168.23.102:8081/shtem-restful-api/places"
+          "http://192.168.23.102:2808/shtem-restful-api/places"
         );
-
-        console.log("place: ", response.data);
       } catch (err) {
         console.error("Error fetching places:", err);
       } finally {
@@ -51,14 +50,34 @@ export default function Map() {
     fetchPlaces();
   }, []);
 
+  console.log("đã chọn: ", selectedPlace);
+
+  useEffect(() => {
+    const fetchAudio = async () => {
+      try {
+        const response = await axios.get(
+          selectedPlace
+            ? `http://192.168.23.102:2808/shtem-restful-api/places/${selectedPlace.id}`
+            : ""
+        );
+        setAudio(response.data.descriptions[0].audios[0].url);
+        console.log("audio", response.data.descriptions[0].audios[0].url);
+      } catch (err) {
+        console.error("Error fetching places:", err);
+      } finally {
+      }
+    };
+
+    fetchAudio();
+  }, [selectedPlace]);
+
   const fetchNearbyLocations = async (long: number, lat: number) => {
     console.log(long, lat);
     try {
       const res = await axios.get(
-        `http://192.168.23.102:8081/shtem-restful-api/places/nearby?longitude=${long}&latitude=${lat}&distance=5000`
+        `http://192.168.23.102:2808/shtem-restful-api/places/nearby?longitude=${long}&latitude=${lat}&distance=50000`
       );
       setPlaces(res.data);
-      console.log("nearby: ", res.data);
     } catch (err) {
       console.error("Error fetching nearby places:", err);
     }
@@ -148,17 +167,17 @@ export default function Map() {
         />
 
         {/* Marker cho các địa điểm gần đó */}
-        {/* {places?.map((place) => (
+        {places?.map((place) => (
           <Marker
             key={place.id}
             coordinate={{
-              latitude: place.lat,
-              longitude: place.lon,
+              latitude: place.location.coordinates[1],
+              longitude: place.location.coordinates[0],
             }}
             title={place.name}
             onPress={() => setSelectedPlace(place)}
           />
-        ))} */}
+        ))}
         {selectedLocation && (
           <Marker
             coordinate={{
@@ -172,34 +191,14 @@ export default function Map() {
       </MapView>
 
       {/* Modal hiện thông tin và nút nghe audio */}
-      <Modal
-        visible={!!selectedPlace}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setSelectedPlace(null)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{selectedPlace?.name}</Text>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => {
-                if (selectedPlace?.audioUrl) {
-                  console.log("Playing audio:", selectedPlace.audioUrl);
-                }
-              }}
-            >
-              <Text style={styles.buttonText}>Nghe audio</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, { backgroundColor: "#ccc" }]}
-              onPress={() => setSelectedPlace(null)}
-            >
-              <Text style={styles.buttonText}>Đóng</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+
+      {selectedPlace && (
+        <AudioPlayer
+          language="vi"
+          descriptions={selectedPlace.descriptions}
+          audio={audio}
+        />
+      )}
 
       <StatusBar style="auto" />
     </View>

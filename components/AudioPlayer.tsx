@@ -10,30 +10,41 @@ type AudioItem = {
   url: string;
 };
 
+type Description = {
+  _id: string;
+  place: string;
+  language: string;
+  name: string;
+  address: string;
+  city: string;
+  content: string;
+  aiDesc: string;
+  audios: AudioItem[];
+};
+
 type AudioPlayerProps = {
   language: string;
-  audios: AudioItem[];
+  descriptions: Description[];
   visible?: boolean;
+  audio: string;
 };
 
 export default function AudioPlayer({
   language,
-  audios,
+  descriptions,
   visible = true,
+  audio,
 }: AudioPlayerProps) {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const audioForLanguage = audios.find((item) => item.voice === language);
-
   const playSound = async () => {
-    if (!audioForLanguage?.url) return;
-
+    if (!audio) return;
     setLoading(true);
     try {
       const { sound } = await Audio.Sound.createAsync(
-        { uri: audioForLanguage.url },
+        { uri: audio },
         { shouldPlay: true }
       );
       setSound(sound);
@@ -62,7 +73,6 @@ export default function AudioPlayer({
     }
   };
 
-  // Tự động dừng phát nếu visible chuyển thành false
   useEffect(() => {
     if (!visible && isPlaying) {
       stopSound();
@@ -77,7 +87,7 @@ export default function AudioPlayer({
     };
   }, [sound]);
 
-  if (!visible) return null;
+  if (!visible || !audio) return null;
 
   return (
     <View style={{ flexDirection: "row", alignItems: "center" }}>
