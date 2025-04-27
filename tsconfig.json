@@ -1,4 +1,5 @@
 {
+  "extends": "./node_modules/expo/tsconfig.base",
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
@@ -7,25 +8,12 @@
     "moduleResolution": "node",
     "baseUrl": "./src",
     "paths": {
-      "@components/*": [
-        "components/*"
-      ],
-      "@screens/*": [
-        "screens/*"
-      ],
-      "@assets/*": [
-        "assets/*"
-      ],
-      "@utils/*": [
-        "utils/*"
-      ],
-      "@types/*": [
-        "types/*"
-      ],
-      "@hooks/*": [
-        "hooks/*"
-      ]
+      "@components/*": ["components/*"],
+      "@screens/*": ["screens/*"],
+      "@assets/*": ["assets/*"],
+      "@utils/*": ["utils/*"],
+      "@types/*": ["types/*"],
+      "@hooks/*": ["hooks/*"]
     }
-  },
-  "extends": "expo/tsconfig.base"
+  }
 }

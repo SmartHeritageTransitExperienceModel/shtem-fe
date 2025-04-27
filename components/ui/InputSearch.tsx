@@ -29,7 +29,6 @@ export default function Header() {
   };
 
   const selectLanguage = (lang: string) => {
-    console.log("Selected language:", lang);
     setLanguageModalVisible(false);
   };
 
@@ -55,8 +54,6 @@ export default function Header() {
       const data = await res.json();
       setResults(data);
     };
-
-    console.log(searchQuery);
     const timeout = setTimeout(fetchLocations, 300);
 
     if (results.length > 0) {

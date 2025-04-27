@@ -13,7 +13,18 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.example.mapsapp",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Ứng dụng cần quyền truy cập camera của bạn để quét mã QR.",
+        "NSPhotoLibraryAddUsageDescription": "Ứng dụng cần quyền truy cập vào thư viện ảnh của bạn để lưu ảnh.",
+        "NSPhotoLibraryUsageDescription": "Ứng dụng cần quyền truy cập vào thư viện ảnh của bạn để chọn ảnh.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Ứng dụng cần quyền truy cập vị trí của bạn để hiển thị bản đồ chính xác.",
+        "NSLocationAlwaysUsageDescription": "Ứng dụng cần quyền truy cập vị trí của bạn để hiển thị bản đồ chính xác.",
+        "NSLocationUsageDescription": "Ứng dụng cần quyền truy cập vị trí của bạn để hiển thị bản đồ chính xác.",
+        "NSLocationWhenInUseUsageDescription": "Ứng dụng cần quyền truy cập vị trí của bạn để hiển thị bản đồ chính xác."
+      }
     },
     "android": {
       "adaptiveIcon": {

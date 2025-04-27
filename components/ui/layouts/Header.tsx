@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useDebounce } from "../../../utils/useDebounce";
 import {
   View,
   Text,
@@ -7,14 +8,15 @@ import {
   TextInput,
   BackHandler,
   FlatList,
+  Keyboard,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import ExitConfirmModal from "../modals/ExitConfirmModal";
 import LanguageChooseModal from "../modals/LanguageChooseModal";
 import { useLocationStore } from "../../../store/useLocationStore";
+import axios from "axios";
 
 export default function Header() {
-  console.log("first render");
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
   const [exitModalVisible, setExitModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,15 +24,14 @@ export default function Header() {
     { place_id: number; display_name: string }[]
   >([]);
 
-  const { language } = useLocationStore();
+  const { language, setSelectedLocation } = useLocationStore();
+
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const debouncedQuery = useDebounce(searchQuery, 500);
 
   const toggleLanguageModal = () => {
     setLanguageModalVisible(!languageModalVisible);
-  };
-
-  const selectLanguage = (lang: string) => {
-    console.log("Selected language:", lang);
-    setLanguageModalVisible(false);
   };
 
   const confirmExit = () => {
@@ -48,27 +49,32 @@ export default function Header() {
 
   useEffect(() => {
     const fetchLocations = async () => {
-      if (searchQuery.length < 2) {
+      if (debouncedQuery.length < 2) {
         setResults([]);
         return;
       }
-      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-        searchQuery
-      )}&format=json`;
-      const res = await fetch(url, {
-        headers: {
-          "User-Agent": "HihiMaps/1.0 (dbao09107@gmail.com)",
-        },
-      });
-      const data = await res.json();
-      setResults(data);
+
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+          debouncedQuery
+        )}&format=json`;
+
+        const res = await fetch(url, {
+          headers: {
+            "User-Agent": "HihiMaps/1.0 (dbao09107@gmail.com)",
+          },
+        });
+
+        const data = await res.json();
+        setResults(data);
+      } catch (err) {
+        console.error("Lỗi fetch location:", err);
+      }
     };
 
-    console.log(results);
-    console.log(searchQuery);
-    const timeout = setTimeout(fetchLocations, 100);
-    return () => clearTimeout(timeout);
-  }, [searchQuery]);
+    fetchLocations();
+  }, [debouncedQuery]);
+  console.log(data);
 
   return (
     <>
@@ -76,7 +82,9 @@ export default function Header() {
         <TouchableOpacity onPress={toggleLanguageModal}>
           <Text style={styles.title}>{language === "vi" ? "Vi" : "En"}</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Hihi Maps</Text>
+        <TouchableOpacity>
+          <Text style={styles.title}>Hihi Maps</Text>
+        </TouchableOpacity>
         <TouchableOpacity onPress={confirmExit}>
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -108,7 +116,8 @@ export default function Header() {
               onPress={() => {
                 setSearchQuery(item.display_name);
                 setResults([]);
-                console.log("Đã chọn:", item.display_name);
+                Keyboard.dismiss();
+                setSelectedLocation(item as any);
               }}
             >
               <Text style={styles.resultText}>{item.display_name}</Text>
