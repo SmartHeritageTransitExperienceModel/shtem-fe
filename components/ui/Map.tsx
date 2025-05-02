@@ -6,6 +6,8 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Modal,
+  ToastAndroid,
+  Button,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import MapView, { Marker } from "react-native-maps";
@@ -32,38 +34,29 @@ export default function Map() {
   const { selectedLocation } = useLocationStore();
   const [audio, setAudio] = useState<string | null>(null);
   const mapRef = useRef<MapView>(null);
+  const [audioModalVisible, setAudioModalVisible] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
-  console.log(selectedLocation);
+  // console.log(selectedLocation);
 
-  useEffect(() => {
-    const fetchPlaces = async () => {
-      try {
-        const response = await axios.get(
-          "http://192.168.23.102:2808/shtem-restful-api/places"
-        );
-      } catch (err) {
-        console.error("Error fetching places:", err);
-      } finally {
-      }
-    };
+  // console.log("đã chọn: ", selectedPlace);
 
-    fetchPlaces();
-  }, []);
-
-  console.log("đã chọn: ", selectedPlace);
+  const handleSelectPlace = (place: Place) => {
+    setAudioModalVisible(true);
+    setSelectedPlace(place);
+  };
 
   useEffect(() => {
     const fetchAudio = async () => {
       try {
         const response = await axios.get(
           selectedPlace
-            ? `http://192.168.23.102:2808/shtem-restful-api/places/${selectedPlace.id}`
+            ? `http://192.168.1.15:2808/shtem-restful-api/places/${selectedPlace.id}`
             : ""
         );
         setAudio(response.data.descriptions[0].audios[0].url);
         console.log("audio", response.data.descriptions[0].audios[0].url);
       } catch (err) {
-        console.error("Error fetching places:", err);
       } finally {
       }
     };
@@ -74,14 +67,37 @@ export default function Map() {
   const fetchNearbyLocations = async (long: number, lat: number) => {
     console.log(long, lat);
     try {
+      ToastAndroid.show("Phát hiện địa điểm gần bạn", ToastAndroid.SHORT);
+
       const res = await axios.get(
-        `http://192.168.23.102:2808/shtem-restful-api/places/nearby?longitude=${long}&latitude=${lat}&distance=50000`
+        `http://192.168.1.15:2808/shtem-restful-api/places/nearby?longitude=${long}&latitude=${lat}&distance=5000000`
       );
+      console.log("Status:", res.status);
+      console.log("Response full:", res);
+      console.log("Data:", res.data);
       setPlaces(res.data);
     } catch (err) {
-      console.error("Error fetching nearby places:", err);
+      console.log("Lỗi gọi API nearby: ", err);
+      ToastAndroid.show(
+        "Không thể lấy danh sách địa điểm gần bạn. Vui lòng thử lại.",
+        ToastAndroid.LONG
+      );
     }
   };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (location) {
+        const { latitude, longitude } = location.coords;
+        fetchNearbyLocations(longitude, latitude);
+      }
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [location]);
+
+  // console.log(places);
+
+  // console.log(audioModalVisible);
 
   useEffect(() => {
     const subscribeToLocation = async () => {
@@ -145,6 +161,15 @@ export default function Map() {
 
   return (
     <View style={styles.container}>
+      {/* <Button
+        title="Tải lại địa điểm gần đây"
+        onPress={() => {
+          if (location) {
+            const { latitude, longitude } = location.coords;
+            fetchNearbyLocations(longitude, latitude);
+          }
+        }}
+      /> */}
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -175,7 +200,7 @@ export default function Map() {
               longitude: place.location.coordinates[0],
             }}
             title={place.name}
-            onPress={() => setSelectedPlace(place)}
+            onPress={() => handleSelectPlace(place)}
           />
         ))}
         {selectedLocation && (
@@ -197,6 +222,9 @@ export default function Map() {
           language="vi"
           descriptions={selectedPlace.descriptions}
           audio={audio}
+          visible={audioModalVisible}
+          onClose={() => setAudioModalVisible(false)}
+          title={selectedPlace.slug}
         />
       )}
 

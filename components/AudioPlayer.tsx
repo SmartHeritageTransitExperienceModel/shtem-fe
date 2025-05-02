@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, ActivityIndicator } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  ActivityIndicator,
+  Button,
+  Modal,
+  StyleSheet,
+} from "react-native";
 import { Audio } from "expo-av";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -23,15 +31,19 @@ type Description = {
 };
 
 type AudioPlayerProps = {
+  title?: string;
   language: string;
   descriptions: Description[];
-  visible?: boolean;
+  visible: boolean;
   audio: string;
+  onClose: () => void;
 };
 
 export default function AudioPlayer({
+  title,
   language,
   descriptions,
+  onClose,
   visible = true,
   audio,
 }: AudioPlayerProps) {
@@ -87,33 +99,61 @@ export default function AudioPlayer({
     };
   }, [sound]);
 
-  if (!visible || !audio) return null;
-
   return (
-    <View style={{ flexDirection: "row", alignItems: "center" }}>
-      <TouchableOpacity
-        onPress={isPlaying ? stopSound : playSound}
-        style={{
-          padding: 10,
-          backgroundColor: "#8A2BE2",
-          borderRadius: 8,
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-      >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Ionicons
-            name={isPlaying ? "pause" : "play"}
-            size={20}
-            color="#fff"
-          />
-        )}
-        <Text style={{ color: "#fff", marginLeft: 6 }}>
-          {isPlaying ? "Dừng" : "Phát"}
-        </Text>
-      </TouchableOpacity>
-    </View>
+    <Modal visible={visible} transparent animationType="fade">
+      <View style={styles.overlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.title}>{title}</Text>
+          <TouchableOpacity
+            onPress={isPlaying ? stopSound : playSound}
+            style={styles.playButton}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Ionicons
+                name={isPlaying ? "pause" : "play"}
+                size={20}
+                color="#fff"
+              />
+            )}
+            <Text style={{ color: "#fff", marginLeft: 6 }}>
+              {isPlaying ? "Dừng" : "Phát"}
+            </Text>
+          </TouchableOpacity>
+
+          <View style={{ marginTop: 12 }}>
+            <Button title="Đóng" onPress={onClose} />
+          </View>
+        </View>
+      </View>
+    </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  playButton: {
+    padding: 10,
+    backgroundColor: "#8A2BE2",
+    borderRadius: 8,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+});
