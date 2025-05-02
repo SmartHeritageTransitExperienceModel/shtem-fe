@@ -67,14 +67,9 @@ export default function Map() {
   const fetchNearbyLocations = async (long: number, lat: number) => {
     console.log(long, lat);
     try {
-      ToastAndroid.show("Phát hiện địa điểm gần bạn", ToastAndroid.SHORT);
-
       const res = await axios.get(
         `http://192.168.1.15:2808/shtem-restful-api/places/nearby?longitude=${long}&latitude=${lat}&distance=5000000`
       );
-      console.log("Status:", res.status);
-      console.log("Response full:", res);
-      console.log("Data:", res.data);
       setPlaces(res.data);
     } catch (err) {
       console.log("Lỗi gọi API nearby: ", err);
@@ -89,15 +84,12 @@ export default function Map() {
       if (location) {
         const { latitude, longitude } = location.coords;
         fetchNearbyLocations(longitude, latitude);
+        ToastAndroid.show("Phát hiện địa điểm gần bạn", ToastAndroid.SHORT);
       }
     }, 10000);
 
     return () => clearInterval(interval);
   }, [location]);
-
-  // console.log(places);
-
-  // console.log(audioModalVisible);
 
   useEffect(() => {
     const subscribeToLocation = async () => {
