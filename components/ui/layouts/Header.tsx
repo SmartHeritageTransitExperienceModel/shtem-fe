@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useDebounce } from "../../../utils/useDebounce";
-import CountryFlag from "react-native-country-flag";
 import {
   View,
   Text,
@@ -80,14 +79,8 @@ export default function Header() {
   return (
     <>
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={toggleLanguageModal}
-          style={styles.languageButton}
-        >
-          <CountryFlag isoCode={language === "vi" ? "vn" : "gb"} size={25} />
-          <Text style={styles.languageText}>
-            {language === "vi" ? "Vi" : "En"}
-          </Text>
+        <TouchableOpacity onPress={toggleLanguageModal}>
+          <Text style={styles.title}>{language === "vi" ? "Vi" : "En"}</Text>
         </TouchableOpacity>
         <TouchableOpacity>
           <Text style={styles.title}>Hihi Maps</Text>
@@ -241,15 +234,6 @@ const styles = StyleSheet.create({
   },
   confirmText: {
     color: "#8A2BE2",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  languageButton: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  languageText: {
-    marginLeft: 6,
     fontSize: 16,
     fontWeight: "bold",
   },
