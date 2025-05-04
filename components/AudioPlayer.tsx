@@ -18,45 +18,30 @@ type AudioItem = {
   url: string;
 };
 
-type Description = {
-  _id: string;
-  place: string;
-  language: string;
-  name: string;
-  address: string;
-  city: string;
-  content: string;
-  aiDesc: string;
-  audios: AudioItem[];
-};
-
 type AudioPlayerProps = {
   title?: string;
-  language: string;
-  descriptions: Description[];
+  audios: AudioItem[]; // Mảng audios được truyền từ parent
   visible: boolean;
-  audio: string;
   onClose: () => void;
 };
 
 export default function AudioPlayer({
   title,
-  language,
-  descriptions,
+  audios, // Mảng audios từ parent
   onClose,
   visible = true,
-  audio,
 }: AudioPlayerProps) {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState<string | null>(null);
 
-  const playSound = async () => {
-    if (!audio) return;
+  const playSound = async (audioUrl: string) => {
+    if (!audioUrl) return;
     setLoading(true);
     try {
       const { sound } = await Audio.Sound.createAsync(
-        { uri: audio },
+        { uri: audioUrl },
         { shouldPlay: true }
       );
       setSound(sound);
@@ -85,6 +70,11 @@ export default function AudioPlayer({
     }
   };
 
+  const handleSelectVoice = (url: string) => {
+    setCurrentAudio(url);
+    playSound(url);
+  };
+
   useEffect(() => {
     if (!visible && isPlaying) {
       stopSound();
@@ -104,8 +94,23 @@ export default function AudioPlayer({
       <View style={styles.overlay}>
         <View style={styles.modalContent}>
           <Text style={styles.title}>{title}</Text>
+
+          <View style={styles.audioList}>
+            {audios?.map((audio) => (
+              <TouchableOpacity
+                key={audio._id}
+                onPress={() => handleSelectVoice(audio.url)}
+                style={styles.audioItem}
+              >
+                <Text style={styles.voiceText}>{audio.voice}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
           <TouchableOpacity
-            onPress={isPlaying ? stopSound : playSound}
+            onPress={
+              isPlaying ? stopSound : () => playSound(currentAudio || "")
+            }
             style={styles.playButton}
           >
             {loading ? (
@@ -143,6 +148,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 12,
     alignItems: "center",
+    minWidth: 250,
   },
   playButton: {
     padding: 10,
@@ -150,10 +156,24 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     flexDirection: "row",
     alignItems: "center",
+    marginTop: 12,
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 16,
+  },
+  audioList: {
+    marginTop: 10,
+    width: "100%",
+  },
+  audioItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: "#ddd",
+  },
+  voiceText: {
+    fontSize: 16,
+    textAlign: "center",
   },
 });

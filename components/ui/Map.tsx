@@ -31,15 +31,14 @@ export default function Map() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [places, setPlaces] = useState<Place[]>([]);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [selectedDetailPlace, setSelectedDetailPlace] = useState();
   const { selectedLocation } = useLocationStore();
-  const [audio, setAudio] = useState<string | null>(null);
+  const [audio, setAudio] = useState([]);
   const mapRef = useRef<MapView>(null);
   const [audioModalVisible, setAudioModalVisible] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
-  // console.log(selectedLocation);
-
-  // console.log("đã chọn: ", selectedPlace);
+  const { language } = useLocationStore();
 
   const handleSelectPlace = (place: Place) => {
     setAudioModalVisible(true);
@@ -51,10 +50,16 @@ export default function Map() {
       try {
         const response = await axios.get(
           selectedPlace
-            ? `http://192.168.1.15:2808/shtem-restful-api/places/${selectedPlace.id}`
+            ? `http://192.168.0.108:2808/shtem-restful-api/places/${selectedPlace.id}?lang=${language}`
             : ""
         );
-        setAudio(response.data.descriptions[0].audios[0].url);
+        setAudio(
+          response.data.descriptions[0].audios.map((audio: any) => ({
+            url: audio.url,
+            voice: audio.voice,
+          }))
+        );
+        setSelectedDetailPlace(response.data.descriptions[0]);
         console.log("audio", response.data.descriptions[0].audios[0].url);
       } catch (err) {
       } finally {
@@ -65,10 +70,9 @@ export default function Map() {
   }, [selectedPlace]);
 
   const fetchNearbyLocations = async (long: number, lat: number) => {
-    console.log(long, lat);
     try {
       const res = await axios.get(
-        `http://192.168.1.15:2808/shtem-restful-api/places/nearby?longitude=${long}&latitude=${lat}&distance=5000000`
+        `http://192.168.0.108:2808/shtem-restful-api/places/nearby?longitude=${long}&latitude=${lat}&distance=5000000`
       );
       setPlaces(res.data);
     } catch (err) {
@@ -211,12 +215,10 @@ export default function Map() {
 
       {selectedPlace && (
         <AudioPlayer
-          language="vi"
-          descriptions={selectedPlace.descriptions}
-          audio={audio}
+          audios={audio}
           visible={audioModalVisible}
           onClose={() => setAudioModalVisible(false)}
-          title={selectedPlace.slug}
+          title={selectedDetailPlace?.name || "No Name"}
         />
       )}
 

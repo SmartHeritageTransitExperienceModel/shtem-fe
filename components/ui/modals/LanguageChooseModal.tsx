@@ -13,11 +13,13 @@ import { useLocationStore } from "../../../store/useLocationStore";
 interface LanguageChooseModalProps {
   languageModalVisible: boolean;
   toggleLanguageModal: () => void;
+  onClose: () => void;
 }
 
 export default function LanguageChooseModal({
   languageModalVisible,
   toggleLanguageModal,
+  onClose,
 }: LanguageChooseModalProps) {
   const { setLanguage } = useLocationStore();
   return (
@@ -29,10 +31,20 @@ export default function LanguageChooseModal({
     >
       <Pressable style={styles.modalOverlay} onPress={toggleLanguageModal}>
         <View style={styles.modalContent}>
-          <TouchableOpacity onPress={() => setLanguage("vi")}>
+          <TouchableOpacity
+            onPress={() => {
+              setLanguage("vi");
+              onClose();
+            }}
+          >
             <Text style={styles.modalOption}>Tiếng Việt</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setLanguage("en")}>
+          <TouchableOpacity
+            onPress={() => {
+              setLanguage("en");
+              onClose();
+            }}
+          >
             <Text style={styles.modalOption}>English</Text>
           </TouchableOpacity>
         </View>

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useDebounce } from "../../../utils/useDebounce";
+import CountryFlag from "react-native-country-flag";
+import Icon from "react-native-vector-icons/Ionicons";
 import {
   View,
   Text,
@@ -74,19 +76,21 @@ export default function Header() {
 
     fetchLocations();
   }, [debouncedQuery]);
-  console.log(data);
 
   return (
     <>
       <View style={styles.header}>
-        <TouchableOpacity onPress={toggleLanguageModal}>
-          <Text style={styles.title}>{language === "vi" ? "Vi" : "En"}</Text>
+        <TouchableOpacity
+          onPress={toggleLanguageModal}
+          style={styles.languageButton}
+        >
+          <CountryFlag isoCode={language === "vi" ? "vn" : "gb"} size={25} />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Text style={styles.title}>Hihi Maps</Text>
+          <Text style={styles.title}>SHTem</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={confirmExit}>
-          <Ionicons name="chevron-back" size={24} color="#fff" />
+          <Icon name="exit-outline" size={24} />{" "}
         </TouchableOpacity>
       </View>
 
@@ -130,6 +134,7 @@ export default function Header() {
       <LanguageChooseModal
         languageModalVisible={languageModalVisible}
         toggleLanguageModal={toggleLanguageModal}
+        onClose={() => setLanguageModalVisible(false)}
       />
 
       <ExitConfirmModal
@@ -234,6 +239,15 @@ const styles = StyleSheet.create({
   },
   confirmText: {
     color: "#8A2BE2",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  languageButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  languageText: {
+    marginLeft: 6,
     fontSize: 16,
     fontWeight: "bold",
   },

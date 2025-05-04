@@ -1,6 +1,9 @@
 {
   "expo": {
     "name": "MapsApp",
+    "developmentClient": {
+      "url": "http://192.168.0.108:8082"
+    },
     "slug": "MapsApp",
     "version": "1.0.0",
     "orientation": "portrait",
