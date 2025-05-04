@@ -4,19 +4,21 @@
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
     "axios": "^1.8.4",
     "expo": "^53.0.0",
     "expo-av": "~15.1.4",
+    "expo-dev-client": "~5.1.8",
     "expo-location": "~18.1.4",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-autocomplete-input": "^5.5.6",
+    "react-native-country-flag": "^2.0.2",
     "react-native-google-places-autocomplete": "^2.5.7",
     "react-native-maps": "1.20.1",
     "zustand": "^5.0.3"

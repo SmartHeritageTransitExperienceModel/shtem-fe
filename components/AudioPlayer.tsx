@@ -7,6 +7,8 @@ import {
   Button,
   Modal,
   StyleSheet,
+  Animated,
+  Easing,
 } from "react-native";
 import { Audio } from "expo-av";
 import { Ionicons } from "@expo/vector-icons";
@@ -50,6 +52,19 @@ export default function AudioPlayer({
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [scaleAnim] = useState(new Animated.Value(0));
+  useEffect(() => {
+    if (visible) {
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 300,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }).start();
+    } else {
+      scaleAnim.setValue(0);
+    }
+  }, [visible]);
 
   const playSound = async () => {
     if (!audio) return;
