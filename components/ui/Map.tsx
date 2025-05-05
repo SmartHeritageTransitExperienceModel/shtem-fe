@@ -59,7 +59,7 @@ export default function Map() {
             voice: audio.voice,
           }))
         );
-        setSelectedDetailPlace(response.data.descriptions[0]);
+        setSelectedDetailPlace(response.data);
         console.log("audio", response.data.descriptions[0].audios[0].url);
       } catch (err) {
       } finally {
@@ -218,7 +218,8 @@ export default function Map() {
           audios={audio}
           visible={audioModalVisible}
           onClose={() => setAudioModalVisible(false)}
-          title={selectedDetailPlace?.name || "No Name"}
+          title={selectedDetailPlace?.descriptions[0].name || "No Name"}
+          images={selectedDetailPlace?.images}
         />
       )}
 

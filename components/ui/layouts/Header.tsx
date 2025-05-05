@@ -90,7 +90,7 @@ export default function Header() {
           <Text style={styles.title}>SHTem</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={confirmExit}>
-          <Icon name="exit-outline" size={24} />{" "}
+          <Icon name="exit-outline" size={24} />
         </TouchableOpacity>
       </View>
 
