@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.4",
+    "@react-native-picker/picker": "^2.11.0",
     "axios": "^1.8.4",
     "expo": "~53.0.7",
     "expo-av": "~15.1.4",

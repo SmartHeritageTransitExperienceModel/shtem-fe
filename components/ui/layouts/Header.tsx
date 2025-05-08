@@ -98,7 +98,7 @@ export default function Header() {
         <Ionicons name="search" size={20} color="#999" />
         <TextInput
           style={styles.searchInput}
-          placeholder="Nhập vị trí..."
+          placeholder="Tìm kiêm địa điểm..."
           placeholderTextColor="#999"
           value={searchQuery}
           onChangeText={(e) => setSearchQuery(e)}
@@ -148,7 +148,7 @@ export default function Header() {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: "#8A2BE2",
+    backgroundColor: "#fff",
     paddingTop: 50,
     paddingBottom: 15,
     paddingHorizontal: 16,
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    color: "#fff",
+    color: "#000",
     fontWeight: "bold",
   },
   searchContainer: {

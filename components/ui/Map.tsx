@@ -17,6 +17,7 @@ import { useLocationStore } from "../../store/useLocationStore";
 import AudioPlayer from "../AudioPlayer";
 
 interface Place {
+  location: any;
   id: number;
   name: string;
   lat: number;
@@ -31,13 +32,18 @@ export default function Map() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [places, setPlaces] = useState<Place[]>([]);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
-  const [selectedDetailPlace, setSelectedDetailPlace] = useState();
+  interface DetailPlace {
+    descriptions: { name: string }[];
+    images: string[];
+  }
+
+  const [selectedDetailPlace, setSelectedDetailPlace] =
+    useState<DetailPlace | null>(null);
   const { selectedLocation } = useLocationStore();
   const [audio, setAudio] = useState([]);
   const mapRef = useRef<MapView>(null);
   const [audioModalVisible, setAudioModalVisible] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-
+  const [descriptions, setDescriptions] = useState();
   const { language } = useLocationStore();
 
   const handleSelectPlace = (place: Place) => {
@@ -50,7 +56,7 @@ export default function Map() {
       try {
         const response = await axios.get(
           selectedPlace
-            ? `http://192.168.0.108:2808/shtem-restful-api/places/${selectedPlace.id}?lang=${language}`
+            ? `http://192.168.15.102:2808/shtem-restful-api/places/${selectedPlace.id}?lang=${language}`
             : ""
         );
         setAudio(
@@ -59,6 +65,7 @@ export default function Map() {
             voice: audio.voice,
           }))
         );
+        setDescriptions(response.data.descriptions[0].content);
         setSelectedDetailPlace(response.data);
         console.log("audio", response.data.descriptions[0].audios[0].url);
       } catch (err) {
@@ -72,7 +79,7 @@ export default function Map() {
   const fetchNearbyLocations = async (long: number, lat: number) => {
     try {
       const res = await axios.get(
-        `http://192.168.0.108:2808/shtem-restful-api/places/nearby?longitude=${long}&latitude=${lat}&distance=5000000`
+        `http://192.168.15.102:2808/shtem-restful-api/places/nearby?longitude=${long}&latitude=${lat}&distance=5000000`
       );
       setPlaces(res.data);
     } catch (err) {
@@ -157,15 +164,6 @@ export default function Map() {
 
   return (
     <View style={styles.container}>
-      {/* <Button
-        title="Tải lại địa điểm gần đây"
-        onPress={() => {
-          if (location) {
-            const { latitude, longitude } = location.coords;
-            fetchNearbyLocations(longitude, latitude);
-          }
-        }}
-      /> */}
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -212,7 +210,6 @@ export default function Map() {
       </MapView>
 
       {/* Modal hiện thông tin và nút nghe audio */}
-
       {selectedPlace && (
         <AudioPlayer
           audios={audio}
@@ -220,6 +217,7 @@ export default function Map() {
           onClose={() => setAudioModalVisible(false)}
           title={selectedDetailPlace?.descriptions[0].name || "No Name"}
           images={selectedDetailPlace?.images}
+          description={descriptions}
         />
       )}
 

@@ -13,6 +13,8 @@ import {
 import { Audio } from "expo-av";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocationStore } from "../store/useLocationStore";
+import { Picker } from "@react-native-picker/picker";
+import DetailDescriptionModal from "./ui/modals/DetailDescriptionModal";
 
 type AudioItem = {
   _id: string;
@@ -26,6 +28,7 @@ type AudioPlayerProps = {
   audios: AudioItem[];
   images?: string[];
   visible: boolean;
+  description?: string;
   onClose: () => void;
 };
 
@@ -35,15 +38,31 @@ export default function AudioPlayer({
   images = [],
   onClose,
   visible = true,
+  description,
 }: AudioPlayerProps) {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [currentAudio, setCurrentAudio] = useState<string | null>(null);
-
+  const [currentAudio, setCurrentAudio] = useState<string | null>(
+    audios[0]?.url || ""
+  );
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const slideTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [selectedVoice, setSelectedVoice] = useState(audios?.[0]?.url || "");
+  const [showDetail, setShowDetail] = useState(false);
   const { language } = useLocationStore();
+
+  useEffect(() => {
+    if (audios?.length > 0) {
+      setSelectedVoice(audios[0]?.url);
+    }
+  }, [audios]);
+
+  console.log(audios, "audios");
+  const handleChange = (url: any) => {
+    setSelectedVoice(url);
+    handleSelectVoice(url);
+  };
 
   // Image slideshow logic
   useEffect(() => {
@@ -93,6 +112,7 @@ export default function AudioPlayer({
   };
 
   const stopSound = async () => {
+    setCurrentAudio(audios[0]?.url || "");
     if (sound) {
       await sound.stopAsync();
       await sound.unloadAsync();
@@ -124,7 +144,32 @@ export default function AudioPlayer({
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.modalContent}>
+          <TouchableOpacity
+            onPress={() => {
+              onClose();
+              if (sound) {
+                setCurrentAudio(null);
+              }
+            }}
+            style={styles.closeIcon}
+          >
+            <Ionicons name="close" size={24} color="#333" />
+          </TouchableOpacity>
           <Text style={styles.title}>{title}</Text>
+          <View style={{ marginBottom: 12 }}>
+            <Text
+              style={styles.description}
+              numberOfLines={4}
+              ellipsizeMode="tail"
+            >
+              {description}
+            </Text>
+            {description && description.length > 100 && (
+              <TouchableOpacity onPress={() => setShowDetail(true)}>
+                <Text style={styles.viewMore}>Xem thêm</Text>
+              </TouchableOpacity>
+            )}
+          </View>
 
           {/* === Image Slider === */}
           {images.length > 0 && (
@@ -157,16 +202,20 @@ export default function AudioPlayer({
           )}
 
           {/* === Audio Selection === */}
-          <View style={styles.audioList}>
-            {audios?.map((audio, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => handleSelectVoice(audio.url)}
-                style={styles.audioItem}
-              >
-                <Text style={styles.voiceText}>{audio.voice}</Text>
-              </TouchableOpacity>
-            ))}
+          <View style={styles.dropdownContainer}>
+            <Picker
+              selectedValue={selectedVoice}
+              onValueChange={(itemValue) => handleChange(itemValue)}
+              style={styles.picker}
+            >
+              {audios?.map((audio, index) => (
+                <Picker.Item
+                  key={index}
+                  label={audio.voice}
+                  value={audio.url}
+                />
+              ))}
+            </Picker>
           </View>
 
           {/* === Play / Stop Button === */}
@@ -174,7 +223,12 @@ export default function AudioPlayer({
             onPress={
               isPlaying ? stopSound : () => playSound(currentAudio || "")
             }
-            style={styles.playButton}
+            disabled={!audios.length}
+            activeOpacity={0.7}
+            style={[
+              styles.playButton,
+              { backgroundColor: isPlaying ? "#FF4C4C" : "#4CAF50" },
+            ]}
           >
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               {loading ? (
@@ -197,24 +251,36 @@ export default function AudioPlayer({
               </Text>
             </View>
           </TouchableOpacity>
-
-          {/* === Close Button === */}
-          <View style={{ marginTop: 12, borderRadius: 8 }}>
-            <Button
-              title={language === "en" ? "Close" : "Đóng"}
-              onPress={onClose}
-            />
-          </View>
         </View>
       </View>
+      <DetailDescriptionModal
+        visible={showDetail}
+        onClose={() => setShowDetail(false)}
+        title={title || ""}
+        description={description || ""}
+      />
     </Modal>
   );
 }
-
-// ==========================
-// Styles
-// ==========================
 const styles = StyleSheet.create({
+  dropdownContainer: {
+    marginTop: 10,
+    width: 180,
+    borderRadius: 12,
+    backgroundColor: "#f0f0f5",
+    overflow: "hidden",
+    borderColor: "#dcdcdc",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  picker: {
+    height: 55,
+    width: "100%",
+    color: "#333",
+  },
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.4)",
@@ -228,15 +294,30 @@ const styles = StyleSheet.create({
     alignItems: "center",
     minWidth: 280,
     maxWidth: "90%",
+    width: "100%",
+    height: "auto",
   },
+  closeIcon: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    zIndex: 10,
+  },
+
   title: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 16,
+    alignContent: "center",
+    textAlign: "center",
+  },
+  description: {
+    paddingBottom: 10,
+    fontSize: 14,
   },
   imageContainer: {
-    width: 250,
-    height: 160,
+    width: 300,
+    height: 180,
     position: "relative",
     marginBottom: 12,
   },
@@ -293,5 +374,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginTop: 12,
+  },
+  viewMore: {
+    color: "#8A2BE2",
+    marginTop: 0,
+    fontSize: 14,
+    fontWeight: "500",
   },
 });
