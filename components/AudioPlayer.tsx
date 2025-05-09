@@ -44,7 +44,7 @@ export default function AudioPlayer({
   const [isPlaying, setIsPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<string | null>(
-    audios[0]?.url || ""
+    audios[0]?.url
   );
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const slideTimer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -55,6 +55,7 @@ export default function AudioPlayer({
   useEffect(() => {
     if (audios?.length > 0) {
       setSelectedVoice(audios[0]?.url);
+      setCurrentAudio(audios[0]?.url);
     }
   }, [audios]);
 
@@ -201,56 +202,58 @@ export default function AudioPlayer({
             </View>
           )}
 
-          {/* === Audio Selection === */}
-          <View style={styles.dropdownContainer}>
-            <Picker
-              selectedValue={selectedVoice}
-              onValueChange={(itemValue) => handleChange(itemValue)}
-              style={styles.picker}
-            >
-              {audios?.map((audio, index) => (
-                <Picker.Item
-                  key={index}
-                  label={audio.voice}
-                  value={audio.url}
-                />
-              ))}
-            </Picker>
-          </View>
-
-          {/* === Play / Stop Button === */}
-          <TouchableOpacity
-            onPress={
-              isPlaying ? stopSound : () => playSound(currentAudio || "")
-            }
-            disabled={!audios.length}
-            activeOpacity={0.7}
-            style={[
-              styles.playButton,
-              { backgroundColor: isPlaying ? "#FF4C4C" : "#4CAF50" },
-            ]}
-          >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Ionicons
-                  name={isPlaying ? "pause" : "play"}
-                  size={20}
-                  color="#fff"
-                />
-              )}
-              <Text style={{ color: "#fff", marginLeft: 6 }}>
-                {language === "en"
-                  ? isPlaying
-                    ? "Pause"
-                    : "Play"
-                  : isPlaying
-                  ? "Dừng"
-                  : "Phát"}
-              </Text>
+          {audios.length > 0 && (
+            <View style={styles.dropdownContainer}>
+              <Picker
+                selectedValue={selectedVoice}
+                onValueChange={(itemValue) => handleChange(itemValue)}
+                style={styles.picker}
+              >
+                {audios?.map((audio, index) => (
+                  <Picker.Item
+                    key={index}
+                    label={audio.voice}
+                    value={audio.url}
+                  />
+                ))}
+              </Picker>
             </View>
-          </TouchableOpacity>
+          )}
+
+          {audios.length > 0 && (
+            <TouchableOpacity
+              onPress={
+                isPlaying ? stopSound : () => playSound(currentAudio || "")
+              }
+              disabled={!audios.length}
+              activeOpacity={0.7}
+              style={[
+                styles.playButton,
+                { backgroundColor: isPlaying ? "#FF4C4C" : "#4CAF50" },
+              ]}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Ionicons
+                    name={isPlaying ? "pause" : "play"}
+                    size={20}
+                    color="#fff"
+                  />
+                )}
+                <Text style={{ color: "#fff", marginLeft: 6 }}>
+                  {language === "en"
+                    ? isPlaying
+                      ? "Pause"
+                      : "Play"
+                    : isPlaying
+                    ? "Dừng"
+                    : "Phát"}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
       <DetailDescriptionModal

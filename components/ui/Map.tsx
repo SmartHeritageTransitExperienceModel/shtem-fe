@@ -56,7 +56,7 @@ export default function Map() {
       try {
         const response = await axios.get(
           selectedPlace
-            ? `http://192.168.15.102:2808/shtem-restful-api/places/${selectedPlace.id}?lang=${language}`
+            ? `http://192.168.1.101:2808/shtem-restful-api/places/${selectedPlace.id}?lang=${language}`
             : ""
         );
         setAudio(
@@ -79,7 +79,7 @@ export default function Map() {
   const fetchNearbyLocations = async (long: number, lat: number) => {
     try {
       const res = await axios.get(
-        `http://192.168.15.102:2808/shtem-restful-api/places/nearby?longitude=${long}&latitude=${lat}&distance=5000000`
+        `http://192.168.1.101:2808/shtem-restful-api/places/nearby?longitude=${long}&latitude=${lat}&distance=5000000`
       );
       setPlaces(res.data);
     } catch (err) {
