@@ -200,7 +200,7 @@ export default function AudioPlayer({
             </View>
           )}
 
-          {audios.length > 0 ? (
+          {audios.length > 0 && (
             <View style={styles.dropdownContainer}>
               <Picker
                 selectedValue={selectedVoice}
@@ -218,8 +218,6 @@ export default function AudioPlayer({
                 ))}
               </Picker>
             </View>
-          ) : (
-            <Text>Loading...</Text>
           )}
 
           {audios.length > 0 && (
