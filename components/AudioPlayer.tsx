@@ -4,11 +4,9 @@ import {
   TouchableOpacity,
   Text,
   ActivityIndicator,
-  Button,
   Modal,
   StyleSheet,
   Image,
-  ScrollView,
 } from "react-native";
 import { Audio } from "expo-av";
 import { Ionicons } from "@expo/vector-icons";
@@ -202,12 +200,14 @@ export default function AudioPlayer({
             </View>
           )}
 
-          {audios.length > 0 && (
+          {audios.length > 0 ? (
             <View style={styles.dropdownContainer}>
               <Picker
                 selectedValue={selectedVoice}
                 onValueChange={(itemValue) => handleChange(itemValue)}
                 style={styles.picker}
+                itemStyle={{ color: "black" }}
+                key={audios.length}
               >
                 {audios?.map((audio, index) => (
                   <Picker.Item
@@ -218,6 +218,8 @@ export default function AudioPlayer({
                 ))}
               </Picker>
             </View>
+          ) : (
+            <Text>Loading...</Text>
           )}
 
           {audios.length > 0 && (
