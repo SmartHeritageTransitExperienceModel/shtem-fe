@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Image,
 } from "react-native";
+import { Platform } from "react-native";
 import { Audio } from "expo-av";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocationStore } from "../store/useLocationStore";
@@ -206,7 +207,9 @@ export default function AudioPlayer({
                 selectedValue={selectedVoice}
                 onValueChange={(itemValue) => handleChange(itemValue)}
                 style={styles.picker}
-                itemStyle={{ color: "black" }}
+                itemStyle={
+                  Platform.OS === "ios" ? styles.pickerItem : undefined
+                }
                 key={audios.length}
               >
                 {audios?.map((audio, index) => (
@@ -283,6 +286,12 @@ const styles = StyleSheet.create({
     height: 55,
     width: "100%",
     color: "#333",
+  },
+  pickerItem: {
+    color: "#333", // iOS only
+    fontSize: 16,
+    height: 55,
+    width: "100%",
   },
   overlay: {
     flex: 1,
