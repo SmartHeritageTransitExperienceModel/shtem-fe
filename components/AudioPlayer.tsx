@@ -288,10 +288,9 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   pickerItem: {
-    color: "#333", // iOS only
-    fontSize: 16,
     height: 55,
     width: "100%",
+    color: "#333", 
   },
   overlay: {
     flex: 1,
